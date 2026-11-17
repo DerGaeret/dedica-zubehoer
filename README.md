@@ -2,18 +2,25 @@
 
 ## Abtropfgitter mit Hexagon-Muster (`dedica_driptray_hex.scad` / `.stl`)
 
-Einsatz für die schwarze Mulde der Abtropfschale. Die Oberseite schließt bündig
-mit der Kante ab, an der das schwarze Teil ins graue Gehäuse übergeht.
+Ersatz-Abtropfgitter für die Dedica EC680 / EC685 / EC885, mit durchgehendem
+Hexagon-Lochmuster.
 
-**Vor dem Druck nachmessen** und oben in der `.scad` eintragen:
+Die Passform stammt aus mehreren erprobten Community-Modellen, die alle auf
+demselben Original-Gitter basieren:
+[Printables 1608242](https://www.printables.com/model/1608242),
+[1142660](https://www.printables.com/model/1142660),
+[687455](https://www.printables.com/model/687455).
 
-| Parameter      | Was messen                                   | Standardwert |
-|----------------|----------------------------------------------|--------------|
-| `mulde_breite` | Innenbreite der Mulde                        | 110 mm       |
-| `mulde_tiefe`  | Innentiefe hinten bis vorderster Punkt       | 100 mm       |
-| `hoehe`        | Muldenboden bis Kante schwarz/grau           | 18 mm        |
+| Maß                       | Wert              |
+|---------------------------|-------------------|
+| Unterkante (Schürze)      | 120,5 × 117,75 mm |
+| Deckplatte oben           | 110,1 × 112,5 mm  |
+| Höhe                      | 9 mm (+ `erhoehung`) |
+| Deckplatte                | 3 mm              |
+| Rastnasen                 | 2 × 3 × 20 mm, innen links/rechts |
 
-Dann in OpenSCAD `F6` → *Export as STL*.
+**Höher machen:** `erhoehung` in der `.scad` setzen (z. B. `5`). Die Schürze
+wird dann unten gerade verlängert und die Oberseite sitzt entsprechend höher.
 
-Druck: Oberseite liegt auf dem Bett (bereits so orientiert), keine Stützen nötig.
-PETG empfohlen (heißes Wasser), 0,2 mm Schicht, 3 Wände.
+Druck: Oberseite liegt auf dem Bett (bereits so orientiert), keine Stützen
+nötig. PETG empfohlen (heißes Wasser), 0,2 mm Schicht, 3 Wände.
