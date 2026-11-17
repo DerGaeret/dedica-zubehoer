@@ -24,3 +24,10 @@ wird dann unten gerade verlängert und die Oberseite sitzt entsprechend höher.
 
 Druck: Oberseite liegt auf dem Bett (bereits so orientiert), keine Stützen
 nötig. PETG empfohlen (heißes Wasser), 0,2 mm Schicht, 3 Wände.
+
+### STEP-Datei
+
+`dedica_driptray_hex.step` ist dasselbe Modell als echtes CAD-Modell (B-Rep)
+für Fusion 360, Onshape, FreeCAD usw. Es ist in Gebrauchslage (Deckplatte
+oben). Neu erzeugen: `pip install cadquery`, dann
+`python3 dedica_driptray_hex_step.py` (Parameter oben in der Datei).
