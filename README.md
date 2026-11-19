@@ -31,3 +31,23 @@ nötig. PETG empfohlen (heißes Wasser), 0,2 mm Schicht, 3 Wände.
 für Fusion 360, Onshape, FreeCAD usw. Es ist in Gebrauchslage (Deckplatte
 oben). Neu erzeugen: `pip install cadquery`, dann
 `python3 dedica_driptray_hex_step.py` (Parameter oben in der Datei).
+
+## Flache Abtropfschale, 2 Teile (`dedica_lowprofile.py`)
+
+Ersetzt die Serien-Abtropfschale komplett: **Wabengitter oben + Abtropfbehälter
+unten**, Bauhöhe 32 mm statt ca. 43 mm. Konzept angelehnt an die Schale auf
+studio48nord.de (ohne deren Prägung/Branding).
+
+Dateien: `dedica_lowprofile_gitter.{step,stl}`, `dedica_lowprofile_behaelter.{step,stl}`,
+`dedica_lowprofile_montage.stl` (nur Ansicht). Neu erzeugen: `python3 dedica_lowprofile.py`.
+
+| Teil     | Maß (B × T × H)        | Quelle |
+|----------|------------------------|--------|
+| Gitter   | 148,7 × 134,1 × 32 mm  | Produktseite |
+| Behälter | 101,7 × 110,6 × 21,2 mm | Produktseite |
+| Wandstärken, Schräge, Lippe, Spiel, Wabengröße | siehe Skriptkopf | **geschätzt** |
+| Anschluss hinten an die Maschine | – | **unbekannt, bitte prüfen** |
+
+Hinten ist das Gitter offen. Die Lippe an der Unterseite greift mit 0,5 mm Spiel
+in den Behälter. `HOEHE = 43` im Skript entspricht der Serienhöhe.
+Druck: Gitter mit der Deckplatte nach unten, Behälter in PETG.
