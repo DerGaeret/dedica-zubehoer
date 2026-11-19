@@ -17,7 +17,7 @@ MASSE – woher sie kommen
   UNBEKANNT: Anschluss hinten an die Maschine (Säule / Standfläche).
 
 Aufruf:  python3 dedica_lowprofile.py
-Ausgabe: dedica_lowprofile_gitter.{step,stl}, dedica_lowprofile_behaelter.{step,stl},
+Ausgabe: dedica_lowprofile_gitter.{step,stl}, dedica_lowprofile_gitter_druck.stl (Platte unten), dedica_lowprofile_behaelter.{step,stl},
          dedica_lowprofile_montage.stl (nur zur Ansicht)
 Koordinaten: x = links/rechts (Mitte 0), y = nach vorne, Hinterkante bei y = 0,
 z = nach oben (Gebrauchslage).
@@ -129,6 +129,10 @@ if __name__ == "__main__":
         v = t.val(); bb = v.BoundingBox()
         print(f"{name}: valid={v.isValid()} vol={v.Volume():.0f} mm3 "
               f"bbox={bb.xlen:.1f} x {bb.ylen:.1f} x {bb.zlen:.1f}")
+    # druckfertig: Deckplatte liegt auf dem Druckbett
+    gd = g.rotate((0, 0, 0), (1, 0, 0), 180).translate((0, TIEFE, HOEHE))
+    cq.exporters.export(gd, "dedica_lowprofile_gitter_druck.stl",
+                        tolerance=0.02, angularTolerance=0.1)
     ueber = g.val().intersect(b.val()).Volume()
     print(f"Überschneidung Gitter/Behälter: {ueber:.2f} mm3 (soll 0 sein)")
     cq.exporters.export(cq.Workplane().add(g.val()).add(b.val()),

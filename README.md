@@ -50,4 +50,10 @@ Dateien: `dedica_lowprofile_gitter.{step,stl}`, `dedica_lowprofile_behaelter.{st
 
 Hinten ist das Gitter offen. Die Lippe an der Unterseite greift mit 0,5 mm Spiel
 in den Behälter. `HOEHE = 43` im Skript entspricht der Serienhöhe.
-Druck: Gitter mit der Deckplatte nach unten, Behälter in PETG.
+Druck: `dedica_lowprofile_gitter_druck.stl` (Deckplatte unten, ohne Stützen),
+Behälter in PETG. Die übrigen STL/STEP liegen in Gebrauchslage.
+
+**Hinweis zur Passform:** Ein anderes getestetes Modell (Printables 1908025)
+hat unten einen D-förmigen Zapfen von ca. 104 × 111 mm, der in eine Mulde der
+Dedica-Basis greift. Der Behälter (101,7 × 110,6 mm) passt zu dieser Mulde. Das
+ist ein Indiz, kein Nachweis für deine Maschine.
