@@ -40,11 +40,11 @@ SPIEL = 0.5           # Luft pro Seite zwischen Lippe und Behälter
 LIPPE_WAND = 1.6
 LIPPE_EINTAUCH = 4.0  # so tief taucht die Lippe in den Behälter
 HEX_LOCH, HEX_STEG = 5.6, 1.4   # Schlüsselweite / Steg -> Raster 7,0 mm
-# Kontur: vorne exakter Halbkreis (Radius BREITE/2), dann ein Stück gerade,
-# dann eine Schräge nach innen zu den Seiten der Maschine, mit Radius übergeleitet.
-SCHRAEG_AB_Y = 36.0   # ab diesem Abstand von der Hinterkante beginnt die Schräge
-HINTEN_HALB = 58.0    # halbe Außenbreite an der Hinterkante (Maschinenseiten) - PRÜFEN
-UEBERGANG_R = 40.0    # Radius, mit dem die Schräge in die Seite/Rundung übergeht
+# Draufsicht: Halbkreis vorne + gerade Seiten (D-Form). An den oberen Seitenkanten
+# sitzt eine Schräge (Schulter), die am Halbkreis bei 0 beginnt und zur offenen
+# Hinterkante hin größer wird -> von hinten gesehen ein Trapez wie die Maschine.
+SCHULTER_B = 23.0     # Schräge: so viel schmaler ist die Oberseite hinten pro Seite - PRÜFEN
+SCHULTER_H = 18.0     # Schräge: so hoch ist die Schulter hinten (Rest darunter senkrecht)
 GRIFF_B = 30.0        # Breite des Griffs am Behälter
 GRIFF_L = 14.0        # so weit ragt der Griff nach vorne
 GRIFF_ANSATZ = 7.2    # Höhe, in der die 45°-Unterseite des Griffs an der Wand beginnt
@@ -66,28 +66,31 @@ def dform(r, z, y0=0.0, y_rund=None):
 
 
 def gform(d, z, y0=0.0):
-    """Außenkontur des Gitters, um d nach innen versetzt (Gebrauchslage).
+    """Außenkontur (D-Form), um d nach innen versetzt."""
+    return dform(R - d, z, y0)
 
-    Vorne exakter Halbkreis (Radius R-d, Mittelpunkt bei y = Y_RUND), dann eine
-    gerade Seite, dann ein Übergangsradius und eine Schräge nach innen bis zur
-    Hinterkante y0 (Schräge ~ Seiten der Maschine).
+
+def schulter_schnitt(seite, versatz):
+    """Halbraum, der die obere Seitenkante abschrägt (seite = +1 rechts, -1 links).
+
+    Ebene durch drei Punkte: Schulterfuß und Oberkante an der Hinterkante (y=0)
+    sowie die Oberkante am Ende des Halbkreises (y=Y_RUND): dort ist die Schräge 0.
+    versatz > 0 schiebt die Ebene nach innen (für den Hohlraum, Wandstärke).
     """
-    al = math.atan((R - HINTEN_HALB) / SCHRAEG_AB_Y)       # Winkel der Schräge zur Längsachse
-    rf = UEBERGANG_R
-    cx, cy = R - rf, SCHRAEG_AB_Y + rf * math.tan(al / 2)  # Mittelpunkt des Übergangsradius
-    rr = R - d
-    rfi = rf - d
-    t1 = (R - d, cy)                                       # Ende der geraden Seite
-    mid = (cx + rfi * math.cos(al / 2), cy - rfi * math.sin(al / 2))
-    t2 = (cx + rfi * math.cos(al), cy - rfi * math.sin(al))  # Anfang der Schräge
-    sl = (t2[1] - y0) / math.cos(al)
-    xr = t2[0] - math.sin(al) * sl                         # Breite an der Hinterkante
-    return (cq.Workplane("XY").workplane(offset=z)
-            .moveTo(-xr, y0).lineTo(xr, y0).lineTo(*t2)
-            .threePointArc(mid, t1).lineTo(rr, Y_RUND)
-            .threePointArc((0, Y_RUND + rr), (-rr, Y_RUND))
-            .lineTo(-t1[0], t1[1])
-            .threePointArc((-mid[0], mid[1]), (-t2[0], t2[1])).close())
+    xw = lambda z: R - SCHRAEGE * z / HOEHE                  # Seitenwand in Höhe z
+    z_b = HOEHE - SCHULTER_H
+    A = cq.Vector(seite * xw(z_b), 0, z_b)
+    B = cq.Vector(seite * (xw(HOEHE) - SCHULTER_B), 0, HOEHE)
+    C = cq.Vector(seite * xw(HOEHE), Y_RUND, HOEHE)
+    n = (B - A).cross(C - A)
+    if n.x * seite < 0:
+        n = n * -1                                           # nach außen
+    n = n.normalized()
+    origin = A - n * versatz
+    xdir = n.cross(cq.Vector(0, 1, 0)).normalized()
+    pl = cq.Plane(origin=(origin.x, origin.y, origin.z),
+                  xDir=(xdir.x, xdir.y, xdir.z), normal=(n.x, n.y, n.z))
+    return cq.Workplane(pl).rect(600, 600).extrude(300)
 
 
 def loft(d0, z0, d1, z1, y0=0.0):
@@ -133,8 +136,12 @@ def behaelter():
 # =============== Gitter ===============
 def gitter():
     aussen = loft(0, 0, SCHRAEGE, HOEHE)
+    for sd in (1, -1):
+        aussen = aussen.cut(schulter_schnitt(sd, 0.0))
     # Innenraum, nach hinten offen (reicht über die Hinterkante hinaus)
     innen = loft(WAND, -0.01, WAND + SCHRAEGE, HOEHE - PLATTE, y0=-6.0)
+    for sd in (1, -1):
+        innen = innen.cut(schulter_schnitt(sd, WAND))
     korpus = aussen.cut(innen)
 
     # Lippe: greift in die Behälter-Mündung
