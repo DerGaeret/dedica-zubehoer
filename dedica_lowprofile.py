@@ -40,7 +40,12 @@ SPIEL = 0.5           # Luft pro Seite zwischen Lippe und Behälter
 LIPPE_WAND = 1.6
 LIPPE_EINTAUCH = 4.0  # so tief taucht die Lippe in den Behälter
 HEX_LOCH, HEX_STEG = 5.6, 1.4   # Schlüsselweite / Steg -> Raster 7,0 mm
-GRIFF_R = 9.0         # Radius der Griffmulde vorne am Behälter
+RUND_WEITER = 20.0    # Grad: Rundung läuft so weit über die breiteste Stelle hinaus,
+                      # danach geht die Kontur schräg (gerade, nach innen) zur Hinterkante
+GRIFF_B = 30.0        # Breite des Griffs am Behälter
+GRIFF_L = 14.0        # so weit ragt der Griff nach vorne
+GRIFF_ANSATZ = 7.2    # Höhe, in der die 45°-Unterseite des Griffs an der Wand beginnt
+GRIFF_LEISTE = 4.8    # Leiste am Griffende ragt so weit über den Behälterrand
 
 R = BREITE / 2
 Y_RUND = TIEFE - R               # Mittelpunkt der Frontrundung
@@ -57,9 +62,25 @@ def dform(r, z, y0=0.0, y_rund=None):
             .threePointArc((0, yr + r), (-r, yr)).close())
 
 
-def loft(r0, z0, r1, z1, y0=0.0):
-    a = dform(r0, z0, y0).val()
-    b = dform(r1, z1, y0).val()
+def gform(d, z, y0=0.0):
+    """Außenkontur des Gitters, um d nach innen versetzt (Gebrauchslage).
+
+    Vorne ein Kreisbogen (Radius R-d, Mittelpunkt bei y = Y_RUND), der um
+    RUND_WEITER Grad über die breiteste Stelle hinausläuft; von dort geht die
+    Kontur tangential schräg nach innen bis zur Hinterkante y0.
+    """
+    rr = R - d
+    be = math.radians(RUND_WEITER)
+    px, py = rr * math.cos(be), Y_RUND - rr * math.sin(be)     # Ende des Bogens
+    xr = px - (py - y0) * math.tan(be)                         # Breite hinten
+    return (cq.Workplane("XY").workplane(offset=z)
+            .moveTo(-xr, y0).lineTo(xr, y0).lineTo(px, py)
+            .threePointArc((0, Y_RUND + rr), (-px, py)).close())
+
+
+def loft(d0, z0, d1, z1, y0=0.0):
+    a = gform(d0, z0, y0).val()
+    b = gform(d1, z1, y0).val()
     return cq.Workplane("XY").add(cq.Solid.makeLoft([a, b], True))
 
 
@@ -85,22 +106,23 @@ def behaelter():
     aussen = dform(BR, 0, 0, B_Y_RUND).extrude(B_HOEHE)
     innen = dform(BR - B_WAND, B_BODEN, B_WAND, B_Y_RUND).extrude(B_HOEHE)
     t = aussen.cut(innen)
-    # Griffmulde vorne
-    griff = (cq.Workplane("XY").workplane(offset=B_HOEHE - 8.0)
-             .center(0, B_TIEFE).circle(GRIFF_R).extrude(9.0))
-    return t.cut(griff)
+    # Griff vorne: 45°-Keil (ohne Stützen druckbar) mit Leiste am Ende.
+    # Profil in (y, z), über die Breite GRIFF_B extrudiert.
+    y0 = B_TIEFE - 0.5                      # leicht in die Wand hinein
+    pts = [(0, GRIFF_ANSATZ), (GRIFF_L + 0.5, B_HOEHE - 0.0 + 0.0),
+           (GRIFF_L + 0.5, B_HOEHE + GRIFF_LEISTE), (GRIFF_L - 1.5, B_HOEHE + GRIFF_LEISTE),
+           (GRIFF_L - 1.5, B_HOEHE), (0, B_HOEHE)]
+    pts = [(y, z) for y, z in pts]
+    griff = (cq.Workplane("YZ").polyline(pts).close()
+             .extrude(GRIFF_B / 2, both=True).translate((0, y0, 0)))
+    return t.union(griff)
 
 
 # =============== Gitter ===============
 def gitter():
-    r_top = R - SCHRAEGE
-    aussen = loft(R, 0, r_top, HOEHE)
-    innen = loft(R - WAND, -0.01, r_top - WAND, HOEHE - PLATTE)
-    # nach hinten offen: Innenraum bis über die Hinterkante verlängern
-    innen = innen.union(
-        cq.Workplane("XY").box(2 * (R - WAND), 6.0, HOEHE - PLATTE + 0.01,
-                               centered=(True, False, False))
-        .translate((0, -6.0, -0.01)))
+    aussen = loft(0, 0, SCHRAEGE, HOEHE)
+    # Innenraum, nach hinten offen (reicht über die Hinterkante hinaus)
+    innen = loft(WAND, -0.01, WAND + SCHRAEGE, HOEHE - PLATTE, y0=-6.0)
     korpus = aussen.cut(innen)
 
     # Lippe: greift in die Behälter-Mündung

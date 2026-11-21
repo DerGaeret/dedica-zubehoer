@@ -48,6 +48,11 @@ Dateien: `dedica_lowprofile_gitter.{step,stl}`, `dedica_lowprofile_behaelter.{st
 | Wandstärken, Schräge, Lippe, Spiel, Wabengröße | siehe Skriptkopf | **geschätzt** |
 | Anschluss hinten an die Maschine | – | **unbekannt, bitte prüfen** |
 
+Die Rundung läuft 20° (`RUND_WEITER`) über die breiteste Stelle hinaus und geht
+dann schräg nach innen zur offenen Hinterkante; hinten ist das Gitter ca. 115 mm
+breit. Der Behälter hat vorne einen Griff (30 mm breit, 14 mm lang, 45°-Unterseite
+ohne Stützen druckbar, Leiste am Ende), daher ist er 124,6 mm tief.
+
 Hinten ist das Gitter offen. Die Lippe an der Unterseite greift mit 0,5 mm Spiel
 in den Behälter. `HOEHE = 43` im Skript entspricht der Serienhöhe.
 Druck: `dedica_lowprofile_gitter_druck.stl` (Deckplatte unten, ohne Stützen),
