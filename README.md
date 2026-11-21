@@ -70,3 +70,34 @@ Behälter in PETG. Die übrigen STL/STEP liegen in Gebrauchslage.
 hat unten einen D-förmigen Zapfen von ca. 104 × 111 mm, der in eine Mulde der
 Dedica-Basis greift. Der Behälter (101,7 × 110,6 mm) passt zu dieser Mulde. Das
 ist ein Indiz, kein Nachweis für deine Maschine.
+
+## Druck-Setup: Qidi Plus 4 + OrcaSlicer
+
+`dedica_lowprofile_druckplatte.3mf` enthält beide Teile in Druckausrichtung
+(Gitter mit der Platte nach unten, Behälter normal), mittig auf dem Bett
+(305 × 305 × 280 mm). Belegt: ca. 262 × 134 mm, höchstes Teil 32 mm. Das 3MF
+enthält nur die Geometrie, keine Slicer-Einstellungen: Drucker, Prozess und
+Filament wählst du in Orca selbst.
+
+**Profile in Orca:** Drucker `Qidi Plus 4 0.4 nozzle`, Prozess `0.20mm Standard`,
+Filament `Qidi PETG` (bzw. `Qidi PLA`). Die Maße sind auf 0,4-mm-Düse und 0,2-mm-Schichten
+abgestimmt (Wand 2,4 mm = 6 Linien, Lippe 1,6 mm = 4 Linien, Wabenstege 1,4 mm,
+Deckplatte 3,0 mm = 15 Schichten, Behälterwand 2,0 mm, Boden 2,0 mm).
+
+| Einstellung | Wert |
+|---|---|
+| Material | Behälter PETG (steht im Wasser). Gitter PETG oder PLA |
+| Düse PETG | 240–260 °C (Qidi-Datenblatt: 240–275 °C) |
+| Bett PETG | 70–80 °C (Qidi-Datenblatt) |
+| Kammer | Heizung aus bzw. niedrig, Deckel/Tür bei PLA offen. Bei PLA/PETG nicht auf 60 °C heizen |
+| Stützen | keine nötig (Schrägen 30°, Griffkeil 45°, Gitter liegt auf der Platte) |
+| Wandanzahl | 4–5 Wände (Behälter wasserdicht), Wandgenerator Arachne |
+| Boden/Deckel | Behälter: 5 Boden-/Deckschichten. Gitterplatte ist 15 Schichten massiv |
+| Füllung | 15 % Gyroid reicht, die Teile bestehen fast nur aus Wänden |
+| Naht | Gitter: hinten (offene Seite), Behälter: hinten |
+| Kühlung PETG | Bauteillüfter 30–50 % |
+
+Hinweise: PETG haftet auf texturiertem PEI sehr gut, bei Bedarf einen dünnen
+Kleberstift-Film als Trennschicht auftragen. Nach dem Druck Behälter auf Dichtheit
+prüfen (Wasser einfüllen). Werte für Düse/Bett stammen aus dem Qidi-Datenblatt für
+PETG. Passe sie an dein konkretes Filament an.
