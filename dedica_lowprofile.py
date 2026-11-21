@@ -40,8 +40,11 @@ SPIEL = 0.5           # Luft pro Seite zwischen Lippe und Behälter
 LIPPE_WAND = 1.6
 LIPPE_EINTAUCH = 4.0  # so tief taucht die Lippe in den Behälter
 HEX_LOCH, HEX_STEG = 5.6, 1.4   # Schlüsselweite / Steg -> Raster 7,0 mm
-RUND_WEITER = 20.0    # Grad: Rundung läuft so weit über die breiteste Stelle hinaus,
-                      # danach geht die Kontur schräg (gerade, nach innen) zur Hinterkante
+# Kontur: vorne exakter Halbkreis (Radius BREITE/2), dann ein Stück gerade,
+# dann eine Schräge nach innen zu den Seiten der Maschine, mit Radius übergeleitet.
+SCHRAEG_AB_Y = 36.0   # ab diesem Abstand von der Hinterkante beginnt die Schräge
+HINTEN_HALB = 58.0    # halbe Außenbreite an der Hinterkante (Maschinenseiten) - PRÜFEN
+UEBERGANG_R = 40.0    # Radius, mit dem die Schräge in die Seite/Rundung übergeht
 GRIFF_B = 30.0        # Breite des Griffs am Behälter
 GRIFF_L = 14.0        # so weit ragt der Griff nach vorne
 GRIFF_ANSATZ = 7.2    # Höhe, in der die 45°-Unterseite des Griffs an der Wand beginnt
@@ -65,17 +68,26 @@ def dform(r, z, y0=0.0, y_rund=None):
 def gform(d, z, y0=0.0):
     """Außenkontur des Gitters, um d nach innen versetzt (Gebrauchslage).
 
-    Vorne ein Kreisbogen (Radius R-d, Mittelpunkt bei y = Y_RUND), der um
-    RUND_WEITER Grad über die breiteste Stelle hinausläuft; von dort geht die
-    Kontur tangential schräg nach innen bis zur Hinterkante y0.
+    Vorne exakter Halbkreis (Radius R-d, Mittelpunkt bei y = Y_RUND), dann eine
+    gerade Seite, dann ein Übergangsradius und eine Schräge nach innen bis zur
+    Hinterkante y0 (Schräge ~ Seiten der Maschine).
     """
+    al = math.atan((R - HINTEN_HALB) / SCHRAEG_AB_Y)       # Winkel der Schräge zur Längsachse
+    rf = UEBERGANG_R
+    cx, cy = R - rf, SCHRAEG_AB_Y + rf * math.tan(al / 2)  # Mittelpunkt des Übergangsradius
     rr = R - d
-    be = math.radians(RUND_WEITER)
-    px, py = rr * math.cos(be), Y_RUND - rr * math.sin(be)     # Ende des Bogens
-    xr = px - (py - y0) * math.tan(be)                         # Breite hinten
+    rfi = rf - d
+    t1 = (R - d, cy)                                       # Ende der geraden Seite
+    mid = (cx + rfi * math.cos(al / 2), cy - rfi * math.sin(al / 2))
+    t2 = (cx + rfi * math.cos(al), cy - rfi * math.sin(al))  # Anfang der Schräge
+    sl = (t2[1] - y0) / math.cos(al)
+    xr = t2[0] - math.sin(al) * sl                         # Breite an der Hinterkante
     return (cq.Workplane("XY").workplane(offset=z)
-            .moveTo(-xr, y0).lineTo(xr, y0).lineTo(px, py)
-            .threePointArc((0, Y_RUND + rr), (-px, py)).close())
+            .moveTo(-xr, y0).lineTo(xr, y0).lineTo(*t2)
+            .threePointArc(mid, t1).lineTo(rr, Y_RUND)
+            .threePointArc((0, Y_RUND + rr), (-rr, Y_RUND))
+            .lineTo(-t1[0], t1[1])
+            .threePointArc((-mid[0], mid[1]), (-t2[0], t2[1])).close())
 
 
 def loft(d0, z0, d1, z1, y0=0.0):
