@@ -48,12 +48,16 @@ Dateien: `dedica_lowprofile_gitter.{step,stl}`, `dedica_lowprofile_behaelter.{st
 | Wandstärken, Schräge, Lippe, Spiel, Wabengröße | siehe Skriptkopf | **geschätzt** |
 | Anschluss hinten an die Maschine | – | **unbekannt, bitte prüfen** |
 
-Draufsicht: Halbkreis vorne mit geraden Seiten (D-Form). An den oberen Seitenkanten
-sitzt eine Schräge, die am Ende des Halbkreises bei 0 beginnt und zur offenen
-Hinterkante hin größer wird. Von hinten gesehen ist das Gitter dadurch ein Trapez
-(unten senkrechte Seiten, dann abgeschrägte Schultern, schmalere Oberseite), passend
-zur Maschine. Einstellbar: `SCHULTER_B` (23 mm pro Seite) und `SCHULTER_H` (18 mm
-Höhe der Schulter), beide nach Skizze geschätzt, bitte an der Maschine prüfen.
+Draufsicht: Halbkreis vorne mit geraden Seiten (D-Form). Nach dem Halbkreis bleibt
+die Seite noch `GERADE_VOR` = 15 mm ganz gerade; erst dann beginnt an den oberen
+Seitenkanten die Schräge, die zur offenen Hinterkante hin größer wird. Von hinten
+gesehen ist das Gitter ein Trapez (unten senkrechte Seiten, dann Schultern, schmalere
+Oberseite). Winkel `SCHULTER_WINKEL` = 30° zur Senkrechten, gemessen am Maschinenrand
+im Printables-Modell 1908025 (29-32°); `SCHULTER_H` = 18 mm Höhe der Schulter (aus der
+Skizze), daraus ca. 10,4 mm Versatz pro Seite.
+Gegenprobe an anderen Modellen: Mulde der Maschinenbasis 103-104 × 110-113 mm
+(Printables 1799189, 1488151, 585177), Serien-Schale 148 × 132 mm mit 58 mm geraden
+Seiten (Printables 1737892). Beides passt zu den Maßen hier.
 Der Behälter hat vorne einen Griff (30 mm breit, 14 mm lang, 45°-Unterseite ohne
 Stützen druckbar, Leiste am Ende), daher ist er 124,6 mm tief.
 

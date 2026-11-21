@@ -43,8 +43,12 @@ HEX_LOCH, HEX_STEG = 5.6, 1.4   # Schlüsselweite / Steg -> Raster 7,0 mm
 # Draufsicht: Halbkreis vorne + gerade Seiten (D-Form). An den oberen Seitenkanten
 # sitzt eine Schräge (Schulter), die am Halbkreis bei 0 beginnt und zur offenen
 # Hinterkante hin größer wird -> von hinten gesehen ein Trapez wie die Maschine.
-SCHULTER_B = 23.0     # Schräge: so viel schmaler ist die Oberseite hinten pro Seite - PRÜFEN
-SCHULTER_H = 18.0     # Schräge: so hoch ist die Schulter hinten (Rest darunter senkrecht)
+SCHULTER_WINKEL = 30.0  # Neigung der Schräge zur Senkrechten. Gemessen am Modell
+                        # Printables 1908025: Außenfläche des Maschinenrands 29-32 Grad
+SCHULTER_H = 18.0     # Höhe der Schulter hinten (Rest darunter senkrecht) - Skizze/Schätzung
+GERADE_VOR = 15.0     # nach dem Halbkreis bleibt die Seite noch so lang ganz gerade,
+                      # erst danach beginnt die Schräge (wächst bis zur Hinterkante)
+SCHULTER_B = SCHULTER_H * math.tan(math.radians(SCHULTER_WINKEL))   # ~10,4 mm pro Seite
 GRIFF_B = 30.0        # Breite des Griffs am Behälter
 GRIFF_L = 14.0        # so weit ragt der Griff nach vorne
 GRIFF_ANSATZ = 7.2    # Höhe, in der die 45°-Unterseite des Griffs an der Wand beginnt
@@ -74,14 +78,14 @@ def schulter_schnitt(seite, versatz):
     """Halbraum, der die obere Seitenkante abschrägt (seite = +1 rechts, -1 links).
 
     Ebene durch drei Punkte: Schulterfuß und Oberkante an der Hinterkante (y=0)
-    sowie die Oberkante am Ende des Halbkreises (y=Y_RUND): dort ist die Schräge 0.
+    sowie die Oberkante bei y = Y_RUND - GERADE_VOR (Ende der geraden Strecke): dort ist die Schräge 0.
     versatz > 0 schiebt die Ebene nach innen (für den Hohlraum, Wandstärke).
     """
     xw = lambda z: R - SCHRAEGE * z / HOEHE                  # Seitenwand in Höhe z
     z_b = HOEHE - SCHULTER_H
     A = cq.Vector(seite * xw(z_b), 0, z_b)
     B = cq.Vector(seite * (xw(HOEHE) - SCHULTER_B), 0, HOEHE)
-    C = cq.Vector(seite * xw(HOEHE), Y_RUND, HOEHE)
+    C = cq.Vector(seite * xw(HOEHE), Y_RUND - GERADE_VOR, HOEHE)
     n = (B - A).cross(C - A)
     if n.x * seite < 0:
         n = n * -1                                           # nach außen
