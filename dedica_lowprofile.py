@@ -49,6 +49,8 @@ SCHULTER_H = 18.0     # Höhe der Schulter hinten (Rest darunter senkrecht) - Sk
 GERADE_VOR = 15.0     # nach dem Halbkreis bleibt die Seite noch so lang ganz gerade,
                       # erst danach beginnt die Schräge (wächst bis zur Hinterkante)
 SCHULTER_B = SCHULTER_H * math.tan(math.radians(SCHULTER_WINKEL))   # ~10,4 mm pro Seite
+B_ECKE_X = 5.0        # hintere Behälterecken abgerundet: 5 mm von der Ecke zur Mitte (Hinterkante entlang)
+B_ECKE_Y = 10.0       # ... und 10 mm nach vorne (Seitenwand entlang), weil die Maschine dort hervorkommt
 GRIFF_B = 30.0        # Breite des Griffs am Behälter
 GRIFF_L = 14.0        # so weit ragt der Griff nach vorne
 GRIFF_ANSATZ = 7.2    # Höhe, in der die 45°-Unterseite des Griffs an der Wand beginnt
@@ -67,6 +69,21 @@ def dform(r, z, y0=0.0, y_rund=None):
     return (cq.Workplane("XY").workplane(offset=z)
             .moveTo(-r, y0).lineTo(r, y0).lineTo(r, yr)
             .threePointArc((0, yr + r), (-r, yr)).close())
+
+
+def behaelter_kontur(d, z):
+    """Behälter-D-Form mit hinten elliptisch abgerundeten Ecken (B_ECKE_X x B_ECKE_Y),
+    um d nach innen versetzt (d = 0: Außenkontur)."""
+    ex, ey = B_ECKE_X, B_ECKE_Y
+    w = (cq.Workplane("XY").workplane(offset=z)
+         .moveTo(-BR + ex, 0).lineTo(BR - ex, 0)
+         .ellipseArc(ex, ey, 270, 360, startAtCurrent=True, sense=1)
+         .lineTo(BR, B_Y_RUND)
+         .threePointArc((0, B_Y_RUND + BR), (-BR, B_Y_RUND))
+         .lineTo(-BR, ey)
+         .ellipseArc(ex, ey, 180, 270, startAtCurrent=True, sense=1)
+         .close())
+    return w if d == 0 else w.offset2D(-d, "arc")
 
 
 def gform(d, z, y0=0.0):
@@ -103,7 +120,7 @@ def loft(d0, z0, d1, z1, y0=0.0):
     return cq.Workplane("XY").add(cq.Solid.makeLoft([a, b], True))
 
 
-def hex_loecher(z, hoehe, r_feld, y0_feld):
+def hex_loecher(z, hoehe, feld):
     px = HEX_LOCH + HEX_STEG
     py = px * math.sqrt(3) / 2
     rc = HEX_LOCH / math.sqrt(3)
@@ -116,14 +133,13 @@ def hex_loecher(z, hoehe, r_feld, y0_feld):
         for i in range(-int(R / px) - 1, int(R / px) + 2):
             cx = i * px + (px / 2 if j % 2 else 0)
             solids.append(proto.translate(cq.Vector(cx, j * py, 0)))
-    feld = dform(r_feld, z - 0.5, y0_feld).extrude(hoehe + 1.0)
     return cq.Workplane("XY").add(cq.Compound.makeCompound(solids)).intersect(feld)
 
 
 # =============== Behälter ===============
 def behaelter():
-    aussen = dform(BR, 0, 0, B_Y_RUND).extrude(B_HOEHE)
-    innen = dform(BR - B_WAND, B_BODEN, B_WAND, B_Y_RUND).extrude(B_HOEHE)
+    aussen = behaelter_kontur(0, 0).extrude(B_HOEHE)
+    innen = behaelter_kontur(B_WAND, B_BODEN).extrude(B_HOEHE)
     t = aussen.cut(innen)
     # Griff vorne: 45°-Keil (ohne Stützen druckbar) mit Leiste am Ende.
     # Profil in (y, z), über die Breite GRIFF_B extrudiert.
@@ -154,14 +170,14 @@ def gitter():
     l_aussen_r = BR - B_WAND - SPIEL
     l_innen_r = l_aussen_r - LIPPE_WAND
     y_l = B_WAND + SPIEL
-    lippe = (dform(l_aussen_r, z_l0, y_l, B_Y_RUND).extrude(z_pl - z_l0 + 0.01)
-             .cut(dform(l_innen_r, z_l0 - 0.1, y_l + LIPPE_WAND, B_Y_RUND)
+    lippe = (behaelter_kontur(B_WAND + SPIEL, z_l0).extrude(z_pl - z_l0 + 0.01)
+             .cut(behaelter_kontur(B_WAND + SPIEL + LIPPE_WAND, z_l0 - 0.1)
                   .extrude(z_pl - z_l0 + 0.3)))
     teil = korpus.union(lippe)
 
     # Hexagon-Feld in der Deckplatte, innerhalb der Lippe
-    r_feld = l_innen_r - 0.8
-    teil = teil.cut(hex_loecher(z_pl - 0.5, PLATTE + 1.0, r_feld, y_l + LIPPE_WAND + 0.8))
+    feld = behaelter_kontur(B_WAND + SPIEL + LIPPE_WAND + 0.8, z_pl - 1.0).extrude(PLATTE + 2.0)
+    teil = teil.cut(hex_loecher(z_pl - 0.5, PLATTE + 1.0, feld))
     return teil
 
 

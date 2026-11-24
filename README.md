@@ -57,6 +57,9 @@ Skizze), daraus ca. 10,4 mm Versatz pro Seite.
 Gegenprobe an anderen Modellen: Mulde der Maschinenbasis 103-104 × 110-113 mm
 (Printables 1799189, 1488151, 585177), Serien-Schale 148 × 132 mm mit 58 mm geraden
 Seiten (Printables 1737892). Beides passt zu den Maßen hier.
+Die hinteren Behälterecken sind elliptisch abgerundet (5 mm von der Ecke zur Mitte,
+10 mm nach vorne, `B_ECKE_X` / `B_ECKE_Y`), weil die Maschine dort nicht gerade ist,
+sondern etwas hervorkommt. Lippe und Wabenfeld des Gitters folgen dieser Kontur.
 Der Behälter hat vorne einen Griff (30 mm breit, 14 mm lang, 45°-Unterseite ohne
 Stützen druckbar, Leiste am Ende), daher ist er 124,6 mm tief.
 
