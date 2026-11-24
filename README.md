@@ -27,9 +27,8 @@ nötig. PETG empfohlen (heißes Wasser), 0,2 mm Schicht, 3 Wände.
 
 ### STEP-Datei
 
-`dedica_driptray_hex.step` ist dasselbe Modell als echtes CAD-Modell (B-Rep)
-für Fusion 360, Onshape, FreeCAD usw. Es ist in Gebrauchslage (Deckplatte
-oben). Neu erzeugen: `pip install cadquery`, dann
+Nicht im Repo, wird bei Bedarf erzeugt (CAD-Modell für Fusion 360, Onshape,
+FreeCAD usw., Gebrauchslage): `pip install cadquery`, dann
 `python3 dedica_driptray_hex_step.py` (Parameter oben in der Datei).
 
 ## Flache Abtropfschale, 2 Teile (`dedica_lowprofile.py`)
@@ -38,8 +37,8 @@ Ersetzt die Serien-Abtropfschale komplett: **Wabengitter oben + Abtropfbehälter
 unten**, Bauhöhe 32 mm statt ca. 43 mm. Konzept angelehnt an die Schale auf
 studio48nord.de (ohne deren Prägung/Branding).
 
-Dateien: `dedica_lowprofile_gitter.{step,stl}`, `dedica_lowprofile_behaelter.{step,stl}`,
-`dedica_lowprofile_montage.stl` (nur Ansicht). Neu erzeugen: `python3 dedica_lowprofile.py`.
+Dateien: `dedica_lowprofile_gitter_druck.stl`, `dedica_lowprofile_behaelter.stl`.
+Neu erzeugen (inkl. STEP und Montage-Ansicht): `python3 dedica_lowprofile.py`.
 
 | Teil     | Maß (B × T × H)        | Quelle |
 |----------|------------------------|--------|
@@ -64,7 +63,7 @@ Stützen druckbar, Leiste am Ende), daher ist er 124,6 mm tief.
 Hinten ist das Gitter offen. Die Lippe an der Unterseite greift mit 0,5 mm Spiel
 in den Behälter. `HOEHE = 43` im Skript entspricht der Serienhöhe.
 Druck: `dedica_lowprofile_gitter_druck.stl` (Deckplatte unten, ohne Stützen),
-Behälter in PETG. Die übrigen STL/STEP liegen in Gebrauchslage.
+Behälter in PETG.
 
 **Hinweis zur Passform:** Ein anderes getestetes Modell (Printables 1908025)
 hat unten einen D-förmigen Zapfen von ca. 104 × 111 mm, der in eine Mulde der
